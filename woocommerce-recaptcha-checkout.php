@@ -54,6 +54,14 @@ add_action('admin_init', 'wcr_register_settings');
 
 // Settings page HTML
 function wcr_settings_page() {
+    $secret_key = get_option('wcr_recaptcha_secret_key');
+    $masked_key = '';
+
+    // Mask the secret key if it exists
+    if (!empty($secret_key)) {
+        $masked_key = substr($secret_key, 0, 4) . str_repeat('*', strlen($secret_key) - 4);
+    }
+
     ?>
     <div class="wrap">
         <h1>WooCommerce reCAPTCHA Settings</h1>
@@ -62,11 +70,25 @@ function wcr_settings_page() {
             <table class="form-table">
                 <tr valign="top">
                     <th scope="row">reCAPTCHA Site Key</th>
-                    <td><input type="text" name="wcr_recaptcha_site_key" value="<?php echo esc_attr(get_option('wcr_recaptcha_site_key')); ?>" /></td>
+                    <td>
+                        <input type="text" name="wcr_recaptcha_site_key" 
+                               value="<?php echo esc_attr(get_option('wcr_recaptcha_site_key')); ?>" />
+                    </td>
                 </tr>
                 <tr valign="top">
                     <th scope="row">reCAPTCHA Secret Key</th>
-                    <td><input type="text" name="wcr_recaptcha_secret_key" value="<?php echo esc_attr(get_option('wcr_recaptcha_secret_key')); ?>" /></td>
+                    <td>
+                        <?php if (!empty($secret_key)) : ?>
+                            <input type="text" name="wcr_recaptcha_secret_key" 
+                                   value="" placeholder="<?php echo esc_attr($masked_key); ?>" />
+                            <p class="description">
+                                The secret key is partially hidden for security reasons. Enter a new key to update it.
+                            </p>
+                        <?php else : ?>
+                            <input type="text" name="wcr_recaptcha_secret_key" 
+                                   value="" placeholder="Enter your Secret Key" />
+                        <?php endif; ?>
+                    </td>
                 </tr>
             </table>
             <?php submit_button(); ?>
